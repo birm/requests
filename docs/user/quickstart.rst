@@ -132,7 +132,7 @@ For example, to create an image from binary data returned by a request, you can
 use the following code::
 
     >>> from PIL import Image
-    >>> from StringIO import StringIO
+    >>> from io import StringIO
 
     >>> i = Image.open(StringIO(r.content))
 
@@ -211,6 +211,7 @@ Note: Custom headers are given less precedence than more specific sources of inf
 
 Furthermore, Requests does not change its behavior at all based on which custom headers are specified. The headers are simply passed on into the final request.
 
+Note: All header values must be a ``string``, bytestring, or unicode. While permitted, it's advised to avoid passing unicode header values.
 
 More complicated POST requests
 ------------------------------
@@ -492,8 +493,9 @@ Errors and Exceptions
 In the event of a network problem (e.g. DNS failure, refused connection, etc),
 Requests will raise a :class:`~requests.exceptions.ConnectionError` exception.
 
-In the rare event of an invalid HTTP response, Requests will raise an
-:class:`~requests.exceptions.HTTPError` exception.
+:meth:`Response.raise_for_status() <requests.Response.raise_for_status>` will
+raise an :class:`~requests.exceptions.HTTPError` if the HTTP request
+returned an unsuccessful status code.
 
 If a request times out, a :class:`~requests.exceptions.Timeout` exception is
 raised.

@@ -1,4 +1,5 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
+
 from io import BytesIO
 
 import pytest
@@ -40,9 +41,7 @@ class TestSuperLen:
 
     @pytest.mark.parametrize('error', [IOError, OSError])
     def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
-        """
-        If tell() raises errors, assume the cursor is at position zero.
-        """
+        """If tell() raises errors, assume the cursor is at position zero."""
         class BoomFile(object):
             def __len__(self):
                 return 5
@@ -104,7 +103,8 @@ class TestUnquoteHeaderValue:
 
 class TestGetEnvironProxies:
     """Ensures that IP addresses are correctly matches with ranges
-    in no_proxy variable."""
+    in no_proxy variable.
+    """
 
     @pytest.fixture(autouse=True, params=['no_proxy', 'NO_PROXY'])
     def no_proxy(self, request, monkeypatch):
@@ -288,8 +288,7 @@ def test_get_auth_from_url(url, auth):
         ),
     ))
 def test_requote_uri_with_unquoted_percents(uri, expected):
-    """See: https://github.com/kennethreitz/requests/issues/2356
-    """
+    """See: https://github.com/kennethreitz/requests/issues/2356"""
     assert requote_uri(uri) == expected
 
 
@@ -378,9 +377,16 @@ def test_get_encoding_from_headers(value, expected):
         ('', 0),
         ('T', 1),
         ('Test', 4),
+        ('Cont', 0),
+        ('Other', -5),
+        ('Content', None),
     ))
 def test_iter_slices(value, length):
-    assert len(list(iter_slices(value, 1))) == length
+    if length is None or (length <= 0 and len(value) > 0):
+        # Reads all content at once
+        assert len(list(iter_slices(value, length))) == 1
+    else:
+        assert len(list(iter_slices(value, 1))) == length
 
 
 @pytest.mark.parametrize(
@@ -453,8 +459,8 @@ def test_urldefragauth(url, expected):
             ('http://google.com:5000/v1.0/', False),
     ))
 def test_should_bypass_proxies(url, expected, monkeypatch):
-    """
-    Tests for function should_bypass_proxies to check if proxy can be bypassed or not
+    """Tests for function should_bypass_proxies to check if proxy
+    can be bypassed or not
     """
     monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
